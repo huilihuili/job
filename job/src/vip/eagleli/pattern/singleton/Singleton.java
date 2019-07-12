@@ -1,6 +1,7 @@
 package vip.eagleli.pattern.singleton;
 
 public class Singleton {
+
 	private Singleton() {
 
 	}
@@ -8,7 +9,7 @@ public class Singleton {
 	private static class SingletonHolder {
 		private static Singleton uniqueInstance;
 	}
-	
+
 	public static Singleton getUniqueInstance() {
 		return SingletonHolder.uniqueInstance;
 	}
