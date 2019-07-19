@@ -1,4 +1,4 @@
-package vip.eagleli.structure.stack;
+package vip.eagleli.structure.stack.queue;
 
 public class ArrayStack {
 
