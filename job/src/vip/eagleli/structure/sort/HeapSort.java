@@ -8,9 +8,11 @@ public class HeapSort {
 		if (arr == null || arr.length < 2) {
 			return;
 		}
+
 		for (int i = 0; i < arr.length; i++) {
 			heapInsert(arr, i);
 		}
+
 		int size = arr.length;
 		swap(arr, 0, --size);
 		while (size > 0) {
