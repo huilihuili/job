@@ -1,6 +1,5 @@
-package vip.eagleli.niu.ke;
+package vip.eagleli.programming.niu.ke;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class QingZhu61 {
