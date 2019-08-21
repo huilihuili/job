@@ -7,7 +7,7 @@ public class Singleton {
 	}
 
 	private static class SingletonHolder {
-		private static Singleton uniqueInstance;
+		private static Singleton uniqueInstance = new Singleton();
 	}
 
 	public static Singleton getUniqueInstance() {
