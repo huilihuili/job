@@ -1,6 +1,5 @@
 package vip.eagleli.programming.vip.kid;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
