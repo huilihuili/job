@@ -1,5 +1,7 @@
 package vip.eagleli.concurrent;
 
+import org.junit.Test;
+
 public class ThreadTest {
 	public static void main(String[] args) {
 		Thread thread = new Thread(() -> {
@@ -14,4 +16,17 @@ public class ThreadTest {
 		thread.start();
 		thread.start();
 	}
+
+	@Test
+	public void threadRunTest() {
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+				System.out.println("=====");
+			}
+		};
+		thread.start();
+		System.out.println("hhhh");
+	}
+
 }
