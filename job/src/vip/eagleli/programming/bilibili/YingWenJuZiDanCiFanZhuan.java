@@ -1,6 +1,5 @@
 package vip.eagleli.programming.bilibili;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class YingWenJuZiDanCiFanZhuan {
