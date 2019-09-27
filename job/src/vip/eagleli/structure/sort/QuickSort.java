@@ -13,6 +13,7 @@ public class QuickSort {
 
 	public static void quickSort(int[] arr, int l, int r) {
 		if (l < r) {
+			swap(arr, l, l + (int) ((r - l) * Math.random()));
 			int p = partition(arr, l, r);
 			quickSort(arr, l, p - 1);
 			quickSort(arr, p + 1, r);

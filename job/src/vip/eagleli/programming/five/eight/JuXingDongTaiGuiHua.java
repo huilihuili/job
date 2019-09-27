@@ -17,7 +17,7 @@ public class JuXingDongTaiGuiHua {
 
 	private static int solve(int[][] arr) {
 		int m = arr.length, n = arr[0].length;
-		int[][] res = new int[arr.length][arr[0].length];
+		int[][] res = new int[m][n];
 		res[m - 1][n - 1] = arr[m - 1][n - 1];
 		for (int i = m - 2; i > -1; i--) {
 			res[i][n - 1] = arr[i][n - 1] + res[i + 1][n - 1];

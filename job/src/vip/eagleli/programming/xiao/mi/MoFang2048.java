@@ -1,6 +1,5 @@
 package vip.eagleli.programming.xiao.mi;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class MoFang2048 {
