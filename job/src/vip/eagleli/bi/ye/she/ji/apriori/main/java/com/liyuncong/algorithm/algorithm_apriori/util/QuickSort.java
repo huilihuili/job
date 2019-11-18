@@ -1,5 +1,7 @@
 package vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algorithm_apriori.util;
 
+import java.util.Arrays;
+
 public class QuickSort<T extends Comparable<T>> implements Sort<T> {
 
 	public void sort(T[] a) {
@@ -48,6 +50,7 @@ public class QuickSort<T extends Comparable<T>> implements Sort<T> {
 	
 	public static void main(String[] args) {
 		Integer[] heap = new Integer[]{5, 12, 0, 3, 1, 7};
+		Arrays.sort(heap);
 		new QuickSort<Integer>().sort(heap);
 		for (int i = 0; i < heap.length; i++) {
 			System.out.println(heap[i]);

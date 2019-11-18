@@ -3,6 +3,9 @@ package vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algor
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+import java.util.concurrent.RecursiveTask;
 
 import vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algorithm_apriori.entity.ConfidentAssociationRule;
 import vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algorithm_apriori.entity.FrequentItemset;
@@ -16,7 +19,18 @@ import vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algori
  * @author yuncong
  *
  */
-public class Apriori {
+public class ConcurrentApriori {
+
+	private Transactions transactions;
+	private float minsup;
+	private float minconf;
+
+	public ConcurrentApriori(Transactions transactions, float minsup, float minconf) {
+		this.transactions = transactions;
+		this.minsup = minsup;
+		this.minconf = minconf;
+	}
+
 	/**
 	 * 生成所有频繁项目集
 	 * 
@@ -24,7 +38,7 @@ public class Apriori {
 	 * @param minsup
 	 * @return
 	 */
-	public List<FrequentItemset> generateFrequentItemsets(Transactions transactions, float minsup) {
+	public List<FrequentItemset> generateFrequentItemsets() {
 		// 已经得到的所有频繁项目集
 		List<FrequentItemset> frequentItemsets = new ArrayList<FrequentItemset>();
 		// first pass
@@ -49,7 +63,6 @@ public class Apriori {
 	 * @return
 	 */
 	private List<FrequentItemset> firstPass(Transactions transactions, float minsup) {
-		List<FrequentItemset> oneFrequentItemsets = new ArrayList<FrequentItemset>();
 		// 遍历事务集，获得所有元素
 		List<String> itemList = new ArrayList<String>();
 		List<List<String>> transactionList = transactions.getTransactions();
@@ -60,19 +73,62 @@ public class Apriori {
 				}
 			}
 		}
+		ForkJoinPool pool = new ForkJoinPool();
+		OneFrequentTask task = new OneFrequentTask(0, itemList.size() - 1, itemList);
+		Future<List<FrequentItemset>> result = pool.submit(task);
 
-		// 计算每个元素的支持度，获得所有单项目频繁项目集
-		int transactionsSize = transactions.getTransactionsSize();
-		for (String item : itemList) {
-			List<String> itemListCandidate = Arrays.asList(item);
-			int supportCount = this.getSupportCount(transactions, itemListCandidate);
-			if ((float) supportCount / transactionsSize >= minsup) {
-				FrequentItemset frequentItemset = new FrequentItemset(itemListCandidate, supportCount);
-				oneFrequentItemsets.add(frequentItemset);
-			}
+		try {
+			return result.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private class OneFrequentTask extends RecursiveTask<List<FrequentItemset>> {
+		private static final int THREAD_HOLD = 2;
+
+		private int start;
+		private int end;
+		private List<String> itemList;
+
+		public OneFrequentTask(int start, int end, List<String> itemList) {
+			this.start = start;
+			this.end = end;
+			this.itemList = itemList;
 		}
 
-		return oneFrequentItemsets;
+		@Override
+		protected List<FrequentItemset> compute() {
+			List<FrequentItemset> oneFrequentItemsets = new ArrayList<FrequentItemset>();
+			boolean canCompute = (end - start) <= THREAD_HOLD;
+			int transactionsSize = transactions.getTransactionsSize();
+
+			if (canCompute) {
+				for (int i = start; i <= end; i++) {
+					List<String> itemListCandidate = Arrays.asList(itemList.get(i));
+					int supportCount = getSupportCount(transactions, itemListCandidate);
+					if ((float) supportCount / transactionsSize >= minsup) {
+						FrequentItemset frequentItemset = new FrequentItemset(itemListCandidate, supportCount);
+						oneFrequentItemsets.add(frequentItemset);
+					}
+				}
+			} else {
+				int middle = (start + end) / 2;
+				OneFrequentTask left = new OneFrequentTask(start, middle, itemList);
+				OneFrequentTask right = new OneFrequentTask(middle + 1, end, itemList);
+				// 执行子任务
+				left.fork();
+				right.fork();
+				// 获取子任务结果
+				List<FrequentItemset> lResult = left.join();
+				List<FrequentItemset> rResult = right.join();
+				oneFrequentItemsets.addAll(lResult);
+				oneFrequentItemsets.addAll(rResult);
+			}
+			return oneFrequentItemsets;
+		}
+
 	}
 
 	/**
@@ -182,8 +238,7 @@ public class Apriori {
 	 * @param minconf
 	 * @return
 	 */
-	public List<ConfidentAssociationRule> generateConfidentAssociationRules(List<FrequentItemset> frequentItemsets,
-			float minconf) {
+	public List<ConfidentAssociationRule> generateConfidentAssociationRules(List<FrequentItemset> frequentItemsets) {
 		List<ConfidentAssociationRule> confidentAssociationRules = new ArrayList<ConfidentAssociationRule>();
 		// 对每一个元素个数大于等于2的频繁项目集生成可信关联规则
 		for (FrequentItemset frequentItemset : frequentItemsets) {
