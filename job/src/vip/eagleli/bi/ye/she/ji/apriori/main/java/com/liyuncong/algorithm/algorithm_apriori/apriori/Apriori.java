@@ -2,6 +2,7 @@ package vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algor
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algorithm_apriori.entity.ConfidentAssociationRule;
@@ -17,6 +18,16 @@ import vip.eagleli.bi.ye.she.ji.apriori.main.java.com.liyuncong.algorithm.algori
  *
  */
 public class Apriori {
+	private Transactions transactions;
+	private float minsup;
+	private float minconf;
+
+	public Apriori(Transactions transactions, float minsup, float minconf) {
+		this.transactions = transactions;
+		this.minsup = minsup;
+		this.minconf = minconf;
+	}
+
 	/**
 	 * 生成所有频繁项目集
 	 * 
@@ -24,7 +35,7 @@ public class Apriori {
 	 * @param minsup
 	 * @return
 	 */
-	public List<FrequentItemset> generateFrequentItemsets(Transactions transactions, float minsup) {
+	public List<FrequentItemset> generateFrequentItemsets() {
 		// 已经得到的所有频繁项目集
 		List<FrequentItemset> frequentItemsets = new ArrayList<FrequentItemset>();
 		// first pass
@@ -34,8 +45,8 @@ public class Apriori {
 		do {
 			frequentItemsets.addAll(foreFrequentItemsets);
 			// 得到新的k-1频繁项目集
-			foreFrequentItemsets = this.kpass(transactions, foreFrequentItemsets, minsup);
-		} while (foreFrequentItemsets != null);
+			foreFrequentItemsets = this.kpass(foreFrequentItemsets);
+		} while (foreFrequentItemsets != null && foreFrequentItemsets.size() > 1);
 		return frequentItemsets;
 	}
 
@@ -63,6 +74,7 @@ public class Apriori {
 
 		// 计算每个元素的支持度，获得所有单项目频繁项目集
 		int transactionsSize = transactions.getTransactionsSize();
+		System.out.println(itemList.size());
 		for (String item : itemList) {
 			List<String> itemListCandidate = Arrays.asList(item);
 			int supportCount = this.getSupportCount(transactions, itemListCandidate);
@@ -71,7 +83,6 @@ public class Apriori {
 				oneFrequentItemsets.add(frequentItemset);
 			}
 		}
-
 		return oneFrequentItemsets;
 	}
 
@@ -103,8 +114,7 @@ public class Apriori {
 	 * @param minsup
 	 * @return
 	 */
-	private List<FrequentItemset> kpass(Transactions transactions, List<FrequentItemset> foreFrequentItemsets,
-			float minsup) {
+	private List<FrequentItemset> kpass(List<FrequentItemset> foreFrequentItemsets) {
 		List<FrequentItemset> kfrequentItemsets = new ArrayList<FrequentItemset>();
 		List<List<String>> c1 = this.merge(foreFrequentItemsets);
 		if (c1.size() == 0) {

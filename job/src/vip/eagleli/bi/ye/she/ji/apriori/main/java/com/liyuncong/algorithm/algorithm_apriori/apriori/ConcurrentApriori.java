@@ -48,8 +48,8 @@ public class ConcurrentApriori {
 		do {
 			frequentItemsets.addAll(foreFrequentItemsets);
 			// 得到新的k-1频繁项目集
-			foreFrequentItemsets = this.kpass(transactions, foreFrequentItemsets, minsup);
-		} while (foreFrequentItemsets != null);
+			foreFrequentItemsets = this.kpass(foreFrequentItemsets);
+		} while (foreFrequentItemsets != null && foreFrequentItemsets.size() > 0);
 		return frequentItemsets;
 	}
 
@@ -73,26 +73,29 @@ public class ConcurrentApriori {
 				}
 			}
 		}
+
 		ForkJoinPool pool = new ForkJoinPool();
-		OneFrequentTask task = new OneFrequentTask(0, itemList.size() - 1, itemList);
+		OneFrequentItemsetTask task = new OneFrequentItemsetTask(0, itemList.size() - 1, itemList);
 		Future<List<FrequentItemset>> result = pool.submit(task);
 
 		try {
-			return result.get();
+			return result.get(); // 获取结果
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	private class OneFrequentTask extends RecursiveTask<List<FrequentItemset>> {
-		private static final int THREAD_HOLD = 2;
+	private class OneFrequentItemsetTask extends RecursiveTask<List<FrequentItemset>> {
+		private static final long serialVersionUID = 1L;
+
+		private static final int THREAD_HOLD = 3; // 阈值
 
 		private int start;
 		private int end;
 		private List<String> itemList;
 
-		public OneFrequentTask(int start, int end, List<String> itemList) {
+		public OneFrequentItemsetTask(int start, int end, List<String> itemList) {
 			this.start = start;
 			this.end = end;
 			this.itemList = itemList;
@@ -100,9 +103,9 @@ public class ConcurrentApriori {
 
 		@Override
 		protected List<FrequentItemset> compute() {
-			List<FrequentItemset> oneFrequentItemsets = new ArrayList<FrequentItemset>();
-			boolean canCompute = (end - start) <= THREAD_HOLD;
+			boolean canCompute = (end - start) <= THREAD_HOLD; // 是否小于阈值
 			int transactionsSize = transactions.getTransactionsSize();
+			List<FrequentItemset> oneFrequentItemsets = new ArrayList<FrequentItemset>();
 
 			if (canCompute) {
 				for (int i = start; i <= end; i++) {
@@ -115,11 +118,13 @@ public class ConcurrentApriori {
 				}
 			} else {
 				int middle = (start + end) / 2;
-				OneFrequentTask left = new OneFrequentTask(start, middle, itemList);
-				OneFrequentTask right = new OneFrequentTask(middle + 1, end, itemList);
+				OneFrequentItemsetTask left = new OneFrequentItemsetTask(start, middle, itemList);
+				OneFrequentItemsetTask right = new OneFrequentItemsetTask(middle + 1, end, itemList);
+
 				// 执行子任务
 				left.fork();
 				right.fork();
+
 				// 获取子任务结果
 				List<FrequentItemset> lResult = left.join();
 				List<FrequentItemset> rResult = right.join();
@@ -128,7 +133,6 @@ public class ConcurrentApriori {
 			}
 			return oneFrequentItemsets;
 		}
-
 	}
 
 	/**
@@ -159,9 +163,7 @@ public class ConcurrentApriori {
 	 * @param minsup
 	 * @return
 	 */
-	private List<FrequentItemset> kpass(Transactions transactions, List<FrequentItemset> foreFrequentItemsets,
-			float minsup) {
-		List<FrequentItemset> kfrequentItemsets = new ArrayList<FrequentItemset>();
+	private List<FrequentItemset> kpass(List<FrequentItemset> foreFrequentItemsets) {
 		List<List<String>> c1 = this.merge(foreFrequentItemsets);
 		if (c1.size() == 0) {
 			return null;
@@ -171,18 +173,64 @@ public class ConcurrentApriori {
 			return null;
 		}
 
-		int transactionsSize = transactions.getTransactionsSize();
-		for (List<String> itemList : c2) {
-			int supportCount = this.getSupportCount(transactions, itemList);
-			if ((float) supportCount / transactionsSize >= minsup) {
-				FrequentItemset frequentItemset = new FrequentItemset(itemList, supportCount);
-				kfrequentItemsets.add(frequentItemset);
-			}
-		}
-		if (kfrequentItemsets.size() == 0) {
+		ForkJoinPool pool = new ForkJoinPool();
+		KFrequentItemsetTask task = new KFrequentItemsetTask(0, c2.size() - 1, c2);
+		Future<List<FrequentItemset>> result = pool.submit(task);
+		try {
+			return result.get();
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
-		return kfrequentItemsets;
+	}
+
+	private class KFrequentItemsetTask extends RecursiveTask<List<FrequentItemset>> {
+		private static final long serialVersionUID = 1L;
+
+		private static final int THREAD_HOLD = 3;
+
+		private int start;
+		private int end;
+		private List<List<String>> c2;
+
+		public KFrequentItemsetTask(int start, int end, List<List<String>> c2) {
+			super();
+			this.start = start;
+			this.end = end;
+			this.c2 = c2;
+		}
+
+		@Override
+		protected List<FrequentItemset> compute() {
+			boolean canCompute = (end - start) <= THREAD_HOLD;
+
+			List<FrequentItemset> kfrequentItemsets = new ArrayList<FrequentItemset>();
+			if (canCompute) {
+				int transactionsSize = transactions.getTransactionsSize();
+				for (int i = start; i <= end; i++) {
+					List<String> itemList = c2.get(i);
+					int supportCount = getSupportCount(transactions, itemList);
+					if ((float) supportCount / transactionsSize >= minsup) {
+						FrequentItemset frequentItemset = new FrequentItemset(itemList, supportCount);
+						kfrequentItemsets.add(frequentItemset);
+					}
+				}
+			} else {
+				int middle = (start + end) / 2;
+				KFrequentItemsetTask left = new KFrequentItemsetTask(start, middle, c2);
+				KFrequentItemsetTask right = new KFrequentItemsetTask(middle + 1, end, c2);
+				// 执行子任务
+				left.fork();
+				right.fork();
+				// 获取子任务结果
+				List<FrequentItemset> lResult = left.join();
+				List<FrequentItemset> rResult = right.join();
+				kfrequentItemsets.addAll(lResult);
+				kfrequentItemsets.addAll(rResult);
+			}
+			return kfrequentItemsets;
+		}
+
 	}
 
 	/**
@@ -239,18 +287,81 @@ public class ConcurrentApriori {
 	 * @return
 	 */
 	public List<ConfidentAssociationRule> generateConfidentAssociationRules(List<FrequentItemset> frequentItemsets) {
-		List<ConfidentAssociationRule> confidentAssociationRules = new ArrayList<ConfidentAssociationRule>();
-		// 对每一个元素个数大于等于2的频繁项目集生成可信关联规则
-		for (FrequentItemset frequentItemset : frequentItemsets) {
-			List<String> frequentItemList = frequentItemset.getFrequentItemset();
-			int frequentItemListCount = frequentItemset.getsupportCount();
-			int frequentItemListSize = frequentItemList.size();
-			if (frequentItemListSize >= 2) {
-				confidentAssociationRules.addAll(this.generateConfidentAssociationRules(frequentItemsets,
-						frequentItemList, minconf, frequentItemListCount));
-			}
+		ForkJoinPool pool = new ForkJoinPool();
+		ConfidentAssociationRuleTask task = new ConfidentAssociationRuleTask(0, frequentItemsets.size() - 1,
+				frequentItemsets);
+		Future<List<ConfidentAssociationRule>> result = pool.submit(task);
+		try {
+			return result.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		return confidentAssociationRules;
+
+		// List<ConfidentAssociationRule> confidentAssociationRules = new
+		// ArrayList<ConfidentAssociationRule>();
+		// // 对每一个元素个数大于等于2的频繁项目集生成可信关联规则
+		// for (FrequentItemset frequentItemset : frequentItemsets) {
+		// List<String> frequentItemList = frequentItemset.getFrequentItemset();
+		// int frequentItemListCount = frequentItemset.getsupportCount();
+		// int frequentItemListSize = frequentItemList.size();
+		// if (frequentItemListSize >= 2) {
+		// confidentAssociationRules.addAll(this.generateConfidentAssociationRules(frequentItemsets,
+		// frequentItemList, minconf, frequentItemListCount));
+		// }
+		// }
+		// return confidentAssociationRules;
+	}
+
+	private class ConfidentAssociationRuleTask extends RecursiveTask<List<ConfidentAssociationRule>> {
+		private static final long serialVersionUID = 1L;
+
+		private static final int THREAD_HOLD = 3;
+
+		private int start;
+		private int end;
+		List<FrequentItemset> frequentItemsets;
+
+		public ConfidentAssociationRuleTask(int start, int end, List<FrequentItemset> frequentItemsets) {
+			super();
+			this.start = start;
+			this.end = end;
+			this.frequentItemsets = frequentItemsets;
+		}
+
+		@Override
+		protected List<ConfidentAssociationRule> compute() {
+			boolean canCompute = (end - start) <= THREAD_HOLD;
+
+			List<ConfidentAssociationRule> confidentAssociationRules = new ArrayList<ConfidentAssociationRule>();
+			if (canCompute) {
+				for (int i = start; i <= end; i++) {
+					FrequentItemset frequentItemset = frequentItemsets.get(i);
+					List<String> frequentItemList = frequentItemset.getFrequentItemset();
+					int frequentItemListCount = frequentItemset.getsupportCount();
+					int frequentItemListSize = frequentItemList.size();
+					if (frequentItemListSize >= 2) {
+						confidentAssociationRules.addAll(generateConfidentAssociationRules(frequentItemsets,
+								frequentItemList, minconf, frequentItemListCount));
+					}
+				}
+			} else {
+				int middle = (start + end) / 2;
+				ConfidentAssociationRuleTask left = new ConfidentAssociationRuleTask(start, middle, frequentItemsets);
+				ConfidentAssociationRuleTask right = new ConfidentAssociationRuleTask(middle + 1, end,
+						frequentItemsets);
+				// 执行子任务
+				left.fork();
+				right.fork();
+				// 获取子任务结果
+				List<ConfidentAssociationRule> lResult = left.join();
+				List<ConfidentAssociationRule> rResult = right.join();
+				confidentAssociationRules.addAll(lResult);
+				confidentAssociationRules.addAll(rResult);
+			}
+			return confidentAssociationRules;
+		}
+
 	}
 
 	/**

@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 /**
  * 事务集
  * 
@@ -51,7 +50,7 @@ public class Transactions {
 
 	public Transactions(List<List<String>> transactions) {
 		for (List<String> items : transactions) {
-			String[] itemArray =  items.toArray(new String[0]);
+			String[] itemArray = items.toArray(new String[0]);
 			// new QuickSort<String>().sort(itemArray);
 			Arrays.sort(itemArray);
 			this.transactions.add(Arrays.asList(itemArray));
@@ -85,10 +84,10 @@ public class Transactions {
 			String[] transactaionsArr = transactaionsStr.split(System.lineSeparator());
 			for (String itemsStr : transactaionsArr) {
 				// 用英文或者中文逗号分隔字符串，得到项的数组
-				//String[] itemsArr = itemsStr.split("[,， ]");
+				// String[] itemsArr = itemsStr.split("[,， ]");
 				String[] itemsArr = itemsStr.split(" ");
 				// new QuickSort<String>().sort(itemsArr);
-				Arrays.sort(itemsArr);
+				// Arrays.sort(itemsArr);
 				this.transactions.add(Arrays.asList(itemsArr));
 			}
 		} catch (IOException e) {

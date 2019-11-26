@@ -29,7 +29,7 @@ public class TestApriori {
 		}
 
 		float minsup = 0.5f;
-		Apriori apriori = new Apriori();
+		Apriori apriori = new Apriori(transactions, minsup, 0.0f);
 		// 利用反射访问私有方法
 		Method firstPassMethod = null;
 		try {
@@ -64,8 +64,8 @@ public class TestApriori {
 		String fileName = "transactions.txt";
 		Transactions transactions = new Transactions(fileName);
 		float minsup = 0.5f;
-		Apriori apriori = new Apriori();
-		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets(transactions, minsup);
+		Apriori apriori = new Apriori(transactions, minsup, 0.0f);
+		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets();
 		for (FrequentItemset frequentItemset : frequentItemsets) {
 			System.out.println("....................");
 			System.out.println(frequentItemset);
@@ -77,8 +77,8 @@ public class TestApriori {
 		String fileName = "transactions.txt";
 		Transactions transactions = new Transactions(fileName);
 		float minsup = 0.5f;
-		Apriori apriori = new Apriori();
-		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets(transactions, minsup);
+		Apriori apriori = new Apriori(transactions, minsup, 0.0f);
+		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets();
 		List<ConfidentAssociationRule> confidentAssociationRules = apriori
 				.generateConfidentAssociationRules(frequentItemsets, 0.5f);
 		for (ConfidentAssociationRule confidentAssociationRule : confidentAssociationRules) {
@@ -98,22 +98,26 @@ public class TestApriori {
 		String fileName = "transactions.txt";
 		Transactions transactions = new Transactions(fileName);
 		Date date1 = Calendar.getInstance().getTime();
-		float minsup = 0.5f;
-		float minconf = 0.5f;
-		Apriori apriori = new Apriori();
-		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets(transactions, minsup);
+		float minsup = 0.1f;
+		float minconf = 0.8f;
+		Apriori apriori = new Apriori(transactions, minsup, minconf);
+		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets();
+		Date middle = Calendar.getInstance().getTime();
+		System.out.println((middle.getTime() - date1.getTime()));
 		List<ConfidentAssociationRule> confidentAssociationRules = apriori
 				.generateConfidentAssociationRules(frequentItemsets, minconf);
 		Date date2 = Calendar.getInstance().getTime();
 		System.out.println((date2.getTime() - date1.getTime()));
-		//for (FrequentItemset frequentItemset : frequentItemsets) {
-		//	System.out.println("....................");
-		//	System.out.println(frequentItemset);
-		//}
-		//for (ConfidentAssociationRule confidentAssociationRule : confidentAssociationRules) {
-		//	System.out.println("--------------------");
-		//	System.out.println(confidentAssociationRule);
-		//}
+		System.out.println(frequentItemsets.size() + " " + confidentAssociationRules.size());
+		// for (FrequentItemset frequentItemset : frequentItemsets) {
+		// System.out.println("....................");
+		// System.out.println(frequentItemset);
+		// }
+		// for (ConfidentAssociationRule confidentAssociationRule :
+		// confidentAssociationRules) {
+		// System.out.println("--------------------");
+		// System.out.println(confidentAssociationRule);
+		// }
 	}
 
 	@Test
@@ -129,13 +133,15 @@ public class TestApriori {
 				.generateConfidentAssociationRules(frequentItemsets);
 		Date date2 = Calendar.getInstance().getTime();
 		System.out.println((date2.getTime() - date1.getTime()));
-		for (FrequentItemset frequentItemset : frequentItemsets) {
-			System.out.println("....................");
-			System.out.println(frequentItemset);
-		}
-		for (ConfidentAssociationRule confidentAssociationRule : confidentAssociationRules) {
-			System.out.println("--------------------");
-			System.out.println(confidentAssociationRule);
-		}
+		System.out.println(frequentItemsets.size() + " " + confidentAssociationRules.size());
+		// for (FrequentItemset frequentItemset : frequentItemsets) {
+		// System.out.println("....................");
+		// System.out.println(frequentItemset);
+		// }
+		// for (ConfidentAssociationRule confidentAssociationRule :
+		// confidentAssociationRules) {
+		// System.out.println("--------------------");
+		// System.out.println(confidentAssociationRule);
+		// }
 	}
 }
