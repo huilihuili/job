@@ -98,7 +98,7 @@ public class TestApriori {
 		String fileName = "transactions.txt";
 		Transactions transactions = new Transactions(fileName);
 		Date date1 = Calendar.getInstance().getTime();
-		float minsup = 0.1f;
+		float minsup = 0.2f;
 		float minconf = 0.8f;
 		Apriori apriori = new Apriori(transactions, minsup, minconf);
 		List<FrequentItemset> frequentItemsets = apriori.generateFrequentItemsets();
