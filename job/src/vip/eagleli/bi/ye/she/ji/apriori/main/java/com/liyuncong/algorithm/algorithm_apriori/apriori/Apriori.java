@@ -46,7 +46,7 @@ public class Apriori {
 			frequentItemsets.addAll(foreFrequentItemsets);
 			// 得到新的k-1频繁项目集
 			foreFrequentItemsets = this.kpass(foreFrequentItemsets);
-		} while (foreFrequentItemsets != null && foreFrequentItemsets.size() > 1);
+		} while (foreFrequentItemsets != null && foreFrequentItemsets.size() > 0);
 		return frequentItemsets;
 	}
 
@@ -74,7 +74,7 @@ public class Apriori {
 
 		// 计算每个元素的支持度，获得所有单项目频繁项目集
 		int transactionsSize = transactions.getTransactionsSize();
-		System.out.println(itemList.size());
+		// System.out.println(itemList.size());
 		for (String item : itemList) {
 			List<String> itemListCandidate = Arrays.asList(item);
 			int supportCount = this.getSupportCount(transactions, itemListCandidate);
