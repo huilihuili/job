@@ -14,6 +14,9 @@ public class LeetCode16 {
 
 		Arrays.sort(nums);
 		for (int i = 0; i < nums.length; i++) {
+			if (i > 0 && nums[i] == nums[i - 1]) {
+				continue;
+			}
 			int l = i + 1, r = nums.length - 1;
 			while (l < r) {
 				int diff = nums[l] + nums[r] + nums[i] - target;
@@ -27,8 +30,14 @@ public class LeetCode16 {
 				}
 
 				if (diff < 0) {
+					while (l < r && nums[l] == nums[l + 1]) {
+						l++;
+					}
 					l++;
 				} else {
+					while (l < r && nums[r] == nums[r - 1]) {
+						r--;
+					}
 					r--;
 				}
 			}

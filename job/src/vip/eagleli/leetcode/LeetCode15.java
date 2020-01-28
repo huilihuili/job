@@ -39,8 +39,14 @@ public class LeetCode15 {
 					l++;
 					r--;
 				} else if (sum < 0) {
+					while (l < r && nums[l] == nums[l + 1]) {
+						l++;
+					}
 					l++;
 				} else {
+					while (l < r && nums[r] == nums[r - 1]) {
+						r--;
+					}
 					r--;
 				}
 			}
