@@ -2,10 +2,6 @@ package vip.eagleli.leetcode;
 
 import java.util.LinkedList;
 
-import org.apache.poi.hemf.record.emfplus.HemfPlusImage.EmfPlusWrapMode;
-
-import com.sun.swing.internal.plaf.metal.resources.metal_zh_HK;
-
 public class LeetCode42 {
 	public int trap(int[] height) {
 		if (height == null || height.length == 0) {
