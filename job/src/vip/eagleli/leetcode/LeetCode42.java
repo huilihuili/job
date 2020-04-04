@@ -125,20 +125,17 @@ public class LeetCode42 {
 		if (height == null || height.length == 0) {
 			return 0;
 		}
-
+		int ans = 0, idx = 0;
 		LinkedList<Integer> stack = new LinkedList<>();
-		int current = 0, ans = 0;
-		while (current < height.length) {
-			while (!stack.isEmpty() && height[current] > height[stack.peek()]) {
-				int h = height[stack.peek()];
-				stack.pop();
+		while (idx < height.length) {
+			while (!stack.isEmpty() && height[idx] > height[stack.peek()]) {
+				int top = stack.pop();
 				if (stack.isEmpty()) {
 					break;
 				}
-				ans += (current - stack.peek() - 1) * (Math.min(height[current], height[stack.peek()]) - h);
+				ans += (idx - stack.peek() - 1) * (Math.min(height[stack.peek()], height[idx]) - height[top]);
 			}
-			stack.push(current);
-			current++;
+			stack.push(idx++);
 		}
 		return ans;
 	}
