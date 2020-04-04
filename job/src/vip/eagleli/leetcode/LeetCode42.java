@@ -121,6 +121,12 @@ public class LeetCode42 {
 		return ans;
 	}
 
+	/**
+	 * 单调栈就是比普通的栈多一个性质，即维护一个栈内元素单调。
+	 * 
+	 * @param height
+	 * @return
+	 */
 	public int trap6(int[] height) {
 		if (height == null || height.length == 0) {
 			return 0;
