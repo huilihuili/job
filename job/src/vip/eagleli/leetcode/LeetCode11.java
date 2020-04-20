@@ -2,6 +2,12 @@ package vip.eagleli.leetcode;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Administrator
+ * 
+ * @see LeetCode42
+ */
 public class LeetCode11 {
 	public static void main(String[] args) {
 		LeetCode11 leetCode11 = new LeetCode11();
@@ -12,7 +18,7 @@ public class LeetCode11 {
 	}
 
 	/**
-	 * ±©Á¦·¨
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param height
 	 * @return
@@ -55,4 +61,20 @@ public class LeetCode11 {
 		}
 		return ans;
 	}
+
+	public int maxArea2_(int[] height) {
+		int l = 0, r = height.length - 1;
+		int ans = 0;
+		while (l < r) {
+			int area = Math.min(height[l], height[r]) * (r - l);
+			ans = Math.max(ans, area);
+			if (height[l] <= height[r]) {
+				++l;
+			} else {
+				--r;
+			}
+		}
+		return ans;
+	}
+
 }

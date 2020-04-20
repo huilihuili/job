@@ -2,6 +2,12 @@ package vip.eagleli.leetcode;
 
 import java.util.LinkedList;
 
+/**
+ * 
+ * @author Administrator
+ *
+ * @see LeetCode11
+ */
 public class LeetCode42 {
 	public int trap(int[] height) {
 		if (height == null || height.length == 0) {
