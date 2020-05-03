@@ -14,7 +14,7 @@ public class LeetCode3 {
 	}
 
 	/**
-	 * ±ÉÈËÊµÏÖµÄ
+	 * ï¿½ï¿½ï¿½ï¿½Êµï¿½Öµï¿½
 	 * @param s
 	 * @return
 	 */
@@ -43,7 +43,7 @@ public class LeetCode3 {
 	}
 
 	/**
-	 * ±©Á¦·¨
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param s
 	 * @return
 	 */
@@ -73,9 +73,9 @@ public class LeetCode3 {
 	}
 
 	/**
-	 * ¹Ù·½ÊµÏÖ
+	 * ï¿½Ù·ï¿½Êµï¿½ï¿½
 	 * 
-	 * »¬¶¯´°¿Ú
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param s
 	 * @return
 	 */
@@ -94,12 +94,30 @@ public class LeetCode3 {
 		}
 		return ans;
 	}
+	
+	public int lengthOfLongestSubstring3_(String s) {
+		if (s == null || s.length() == 0) {
+            return 0;
+        }
+        int ans = 0;
+        Set<Character> set = new HashSet<>();
+        char[] cs = s.toCharArray();
+        for (int i = 0, j = 0; j < cs.length;) {
+            if (set.contains(cs[j])) {
+                set.remove(cs[i++]);
+            } else {
+                set.add(cs[j++]);
+                ans = Math.max(ans, set.size());
+            }
+        }
+        return ans;
+	}
 
 	/**
-	 * ¹Ù·½ÊµÏÖ
+	 * ï¿½Ù·ï¿½Êµï¿½ï¿½
 	 * 
-	 * ÓÅ»¯µÄ»¬¶¯´°¿Ú
-	 * Ê¹ÓÃ HashMap
+	 * ï¿½Å»ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * Ê¹ï¿½ï¿½ HashMap
 	 * 
 	 * @param s
 	 * @return
@@ -119,10 +137,10 @@ public class LeetCode3 {
 	}
 
 	/**
-	 * ¹Ù·½ÊµÏÖ
+	 * ï¿½Ù·ï¿½Êµï¿½ï¿½
 	 * 
-	 * ÓÅ»¯µÄ»¬¶¯´°¿Ú
-	 * Ê¹ÓÃ Êý×é£¨¼ÙÉè×Ö·û¼¯Îª ASCII 128£©
+	 * ï¿½Å»ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * Ê¹ï¿½ï¿½ ï¿½ï¿½ï¿½é£¨ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Îª ASCII 128ï¿½ï¿½
 	 * 
 	 * @param s
 	 * @return
