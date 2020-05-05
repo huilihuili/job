@@ -19,4 +19,41 @@ public class LeetCode53 {
 		}
 		return ans;
 	}
+
+	public int maxSubArray2(int[] nums) {
+		if (nums == null || nums.length < 1) {
+			return 0;
+		}
+		return get(nums, 0, nums.length - 1).mSum;
+	}
+
+	Status get(int[] a, int l, int r) {
+		if (l == r) {
+			return new Status(a[l], a[l], a[l], a[l]);
+		}
+		int m = (l + r) >> 1;
+		Status lSub = get(a, l, m);
+		Status rSub = get(a, m + 1, r);
+		return pushUp(lSub, rSub);
+	}
+
+	Status pushUp(Status l, Status r) {
+		int iSum = l.iSum + r.iSum;
+		int lSum = Math.max(l.lSum, l.iSum + r.lSum);
+		int rSum = Math.max(r.rSum, r.iSum + l.rSum);
+		int mSum = Math.max(Math.max(l.mSum, r.mSum), l.rSum + r.lSum);
+		return new Status(lSum, rSum, mSum, iSum);
+	};
+
+	static class Status {
+		int lSum, rSum, mSum, iSum;
+		public Status(int lSum, int rSum, int mSum, int iSum) {
+			super();
+			this.lSum = lSum;
+			this.rSum = rSum;
+			this.mSum = mSum;
+			this.iSum = iSum;
+		}
+	}
+
 }
